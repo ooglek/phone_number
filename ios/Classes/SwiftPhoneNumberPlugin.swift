@@ -1,5 +1,5 @@
 import Flutter
-import PhoneNumberKit
+import PhoneNumberUtility
 
 public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -21,8 +21,8 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    private let kit = PhoneNumberKit()
-    
+    private let utility = PhoneNumberUtility()
+
     private func validate(_ call: FlutterMethodCall, result: FlutterResult){
         guard
             let arguments = call.arguments as? [String : Any],
@@ -37,13 +37,13 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
 
         let region = arguments["region"] as? String?
 
-        let isValid = region != nil ? kit.isValidPhoneNumber(number, withRegion: region!!) : kit.isValidPhoneNumber(number);
+        let isValid = region != nil ? utility.isValidPhoneNumber(number, withRegion: region!!) : utility.isValidPhoneNumber(number);
           let res:[String: Bool] = [
                     "isValid": isValid
                 ]
         result(res)
     }
-    
+
     private func getAllSupportedRegions(_ call: FlutterMethodCall, result: FlutterResult) {
         let locale: Locale
         if let arguments = call.arguments as? [String : Any],
@@ -53,11 +53,11 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
             locale = Locale.current
         }
 
-        let regions = kit
+        let regions = utility
             .allCountries()
             .compactMap { code -> [String: Any]? in
                 guard let name = locale.localizedString(forRegionCode: code),
-                      let prefix = kit.countryCode(for: code) else {
+                      let prefix = utility.countryCode(for: code) else {
                     return nil
                 }
                 return ["name": name,
@@ -68,7 +68,7 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
     }
 
     private func carrierRegionCode(result: FlutterResult) {
-        result(PhoneNumberKit.defaultRegionCode())
+        result(PhoneNumberUtility.defaultRegionCode())
     }
 
     private func format(_ call: FlutterMethodCall, result: FlutterResult) {
@@ -82,7 +82,7 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
                                     details: nil))
                 return
         }
-        
+
         let formatted = PartialFormatter(defaultRegion: region).formatPartial(number)
         let res:[String: String] = [
             "formatted": formatted
@@ -96,10 +96,10 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
             var phoneNumber: PhoneNumber
 
             if let region = region {
-                phoneNumber = try kit.parse(string, withRegion: region)
+                phoneNumber = try utility.parse(string, withRegion: region)
             }
             else {
-                phoneNumber = try kit.parse(string)
+                phoneNumber = try utility.parse(string)
             }
 
             // Try to parse the string to a phone number for a given region.
@@ -110,13 +110,13 @@ public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
             // - the number formatted as a national number and without the international prefix
             // - the number type (might not be 100% auccurate)
 
-            let regionCode = kit.getRegionCode(of: phoneNumber)
+            let regionCode = utility.getRegionCode(of: phoneNumber)
 
             return [
                 "type": phoneNumber.type.toString(),
-                "e164": kit.format(phoneNumber, toType: .e164),
-                "international": kit.format(phoneNumber, toType: .international, withPrefix: true),
-                "national": kit.format(phoneNumber, toType: .national),
+                "e164": utility.format(phoneNumber, toType: .e164),
+                "international": utility.format(phoneNumber, toType: .international, withPrefix: true),
+                "national": utility.format(phoneNumber, toType: .national),
                 "country_code": String(phoneNumber.countryCode),
                 "region_code": String(regionCode ?? ""),
                 "national_number": String(phoneNumber.nationalNumber)
