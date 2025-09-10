@@ -1,3 +1,9 @@
+## 2.1.1
+
+- Bumps PhoneNumberKit to v4.1.4
+- Bumps libphonenumber to v9.0.13
+- Update podspec to match package version
+
 ## 2.1.0
 
 - Deprecate package
