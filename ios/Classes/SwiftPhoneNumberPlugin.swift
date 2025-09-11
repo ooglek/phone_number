@@ -1,5 +1,5 @@
 import Flutter
-import PhoneNumberUtility
+import PhoneNumberKit
 
 public class SwiftPhoneNumberPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
